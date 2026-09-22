@@ -291,27 +291,25 @@ def play_game(client, searcher, game_id, bot_id):
 
         # It's our turn to move!
         if board.turn == my_color and not board.is_game_over():
-            half_moves = len(moves_list)
+            # Set adaptive time budget
+            searcher.set_time_budget(
+                seconds_left=my_time_left,
+                increment=clock_increment,
+                move_number=board.fullmove_number,
+            )
+            budget_display = f"{searcher.max_time:.2f}s"
+            clock_display = f"{my_time_left:.1f}s left"
+            print(f"{Fore.YELLOW}⏳ chesSon thinking (budget: {budget_display}, clock: {clock_display})...{Style.RESET_ALL}")
+            start_t = time.time()
+            best_move = searcher.search_best_move(board, depth=2)
+            think_time = time.time() - start_t
 
-            # ⚡ BULLET OPENING: use pure policy (instant, ~10ms)
-            if is_bullet and half_moves < BULLET_POLICY_MOVES:
-                print(f"{Fore.MAGENTA}⚡ Pure policy (move {half_moves + 1}/{BULLET_POLICY_MOVES})...{Style.RESET_ALL}")
-                start_t = time.time()
-                best_move = searcher.select_move_greedy(board)
-                think_time = time.time() - start_t
-            else:
-                # Set adaptive time budget
-                searcher.set_time_budget(
-                    seconds_left=my_time_left,
-                    increment=clock_increment,
-                    move_number=board.fullmove_number,
-                )
-                budget_display = f"{searcher.max_time:.2f}s"
-                clock_display = f"{my_time_left:.1f}s left"
-                print(f"{Fore.YELLOW}⏳ chesSon thinking (budget: {budget_display}, clock: {clock_display})...{Style.RESET_ALL}")
-                start_t = time.time()
-                best_move = searcher.search_best_move(board, depth=2)
-                think_time = time.time() - start_t
+            # Add a slight natural pacing delay for early moves so it doesn't blitz out robotic instant moves
+            if board.fullmove_number <= 8 and my_time_left > 15:
+                min_wait = 1.0 if not is_bullet else 0.5
+                if think_time < min_wait:
+                    time.sleep(min_wait - think_time)
+                    think_time = min_wait
 
             if best_move and best_move in board.legal_moves:
                 move_uci = best_move.uci()

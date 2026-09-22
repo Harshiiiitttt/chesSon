@@ -115,9 +115,9 @@ class ChesSonSearcher:
             budget = min(3.0, seconds_left * 0.07)
         # Add a fraction of increment
         budget += increment * 0.5
-        # Spend less in the first 10 moves (opening)
-        if move_number <= 10:
-            budget *= 0.6
+        # Ensure opening moves (first 8 moves) have at least a decent base budget to think deeply
+        if move_number <= 8 and seconds_left > 15:
+            budget = max(budget, 0.8 if seconds_left > 60 else 0.35)
         self.max_time = max(0.05, budget)
 
     # ---------------------------------------------------------------------
