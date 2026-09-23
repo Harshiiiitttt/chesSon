@@ -94,7 +94,7 @@ class ChesSonSearcher:
             chess.KING: 0,
         }
 
-    def set_time_budget(self, seconds_left: float, increment: float = 0.0, move_number: int = 1):
+    def set_time_budget(self, seconds_left, increment = 0.0, move_number: int = 1):
         """Adaptively set max_time based on clock state.
 
         Budget formula:
@@ -103,6 +103,22 @@ class ChesSonSearcher:
         - Rapid  (>300s):  min(3.0, seconds_left * 0.07) + increment * 0.5
         Early moves get slightly less time to save for complications.
         """
+        if hasattr(seconds_left, 'total_seconds'):
+            seconds_left = seconds_left.total_seconds()
+        else:
+            try:
+                seconds_left = float(seconds_left)
+            except Exception:
+                seconds_left = 60.0
+
+        if hasattr(increment, 'total_seconds'):
+            increment = increment.total_seconds()
+        else:
+            try:
+                increment = float(increment)
+            except Exception:
+                increment = 0.0
+
         if seconds_left <= 5:
             # Emergency: play instantly
             self.max_time = 0.05

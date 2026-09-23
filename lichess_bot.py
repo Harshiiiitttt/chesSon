@@ -282,12 +282,15 @@ def play_game(client, searcher, game_id, bot_id):
         # Extract remaining clock time from gameState
         if e_type in ("gameFull", "gameState"):
             state_data = event.get("state", event) if e_type == "gameFull" else event
-            if my_color == chess.WHITE:
-                my_time_left = state_data.get("wtime", clock_limit * 1000) / 1000.0
+            raw_time = state_data.get("wtime") if my_color == chess.WHITE else state_data.get("btime")
+            if hasattr(raw_time, "total_seconds"):
+                my_time_left = raw_time.total_seconds()
+            elif isinstance(raw_time, (int, float)):
+                my_time_left = raw_time / 1000.0
             else:
-                my_time_left = state_data.get("btime", clock_limit * 1000) / 1000.0
+                my_time_left = float(clock_limit)
         else:
-            my_time_left = clock_limit  # fallback
+            my_time_left = float(clock_limit)
 
         # It's our turn to move!
         if board.turn == my_color and not board.is_game_over():
