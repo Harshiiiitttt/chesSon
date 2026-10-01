@@ -29,6 +29,3 @@ env/
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# Kaggle data
-kaggle/

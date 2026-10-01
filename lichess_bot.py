@@ -1,7 +1,6 @@
 """Enhanced chesSon Lichess Bot connector.
 
 Features:
-- Beautiful colored terminal interface with ASCII board, evaluation bar, and piece movements.
 - Configurable game time (Blitz, Rapid, Classical, Correspondence) with increment.
 - Clear move logs specifying exact piece ("White Knight", "Black Queen") and captures.
 - Choice of bot piece color (White, Black, or Random).
